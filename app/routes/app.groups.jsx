@@ -55,6 +55,8 @@ export default function Groups() {
   const [modalOpen, setModalOpen] = useState(false);
   const [metafieldDefinitions, setMetafieldDefinitions] = useState([]);
   const [selectedMetafields, setSelectedMetafields] = useState([[]]);
+  const [tempSelectedMetafields, setTempSelectedMetafields] = useState([]);
+
 
   const handleGroupNameChange = (value) => setGroupName(value);
 
@@ -119,6 +121,7 @@ export default function Groups() {
     });
 
     const data = await response.json();
+    console.log(data.data.metafieldDefinitions.edges);
     const definitions = data.data.metafieldDefinitions.edges.map(edge => ({
       id: edge.node.id,
       key: edge.node.key,
@@ -127,68 +130,108 @@ export default function Groups() {
     }));
 
     setMetafieldDefinitions(definitions);
+
+    setTempSelectedMetafields(selectedMetafields[activeTabIndex] || []);
+
     setModalOpen(true);
   };
 
 
+  // const handleCheckboxChange = (id) => {
+  //   setSelectedMetafields((prev) => {
+  //     // Create a copy of the previous state
+  //     const updated = [...prev];
+
+  //     // Ensure the array for the current tab exists
+  //     if (!updated[activeTabIndex]) {
+  //       updated[activeTabIndex] = [];
+  //     }
+
+  //     // Toggle the checkbox selection for the current tab
+  //     updated[activeTabIndex] = updated[activeTabIndex].includes(id)
+  //       ? updated[activeTabIndex].filter((item) => item !== id)
+  //       : [...updated[activeTabIndex], id];
+  //     console.log("Updated selectedMetafields:", updated);
+
+  //     return updated;
+  //   });
+  // };
+
   const handleCheckboxChange = (id) => {
-    setSelectedMetafields((prev) => {
-      // Create a copy of the previous state
+    setTempSelectedMetafields((prev) => {
       const updated = [...prev];
 
-      // Ensure the array for the current tab exists
-      if (!updated[activeTabIndex]) {
-        updated[activeTabIndex] = [];
+      if (updated.includes(id)) {
+        return updated.filter((item) => item !== id);
+      } else {
+        return [...updated, id];
       }
-
-      // Toggle the checkbox selection for the current tab
-      updated[activeTabIndex] = updated[activeTabIndex].includes(id)
-        ? updated[activeTabIndex].filter((item) => item !== id)
-        : [...updated[activeTabIndex], id];
-      console.log("Updated selectedMetafields:", updated);
-
-      return updated;
     });
   };
 
 
+
+  // const handleAssign = () => {
+  //   const metafieldData = selectedMetafields[activeTabIndex].map((id) => {
+  //     // Find the definition corresponding to the selected metafield ID
+  //     const definition = metafieldDefinitions.find((def) => def.id === id);
+  //     return {
+  //       id, // Metafield ID
+  //       namespace: definition?.namespace || "", // Namespace from the definition
+  //       key: definition?.key || "", // Key from the definition
+  //       type: {
+  //         valueType: definition?.type?.valueType || "", // Value type from the definition
+  //         name: definition?.type?.name
+  //       },
+  //     };
+  //   });
+
+
+  //   // Submit the selected metafields to be saved
+  //   fetcher.submit(
+  //     {
+  //       metafields: JSON.stringify(metafieldData || []),
+  //       groupId: metafieldGroups[activeTabIndex].id,
+  //     },
+  //     { method: 'post' }
+  //   );
+
+  //   setModalOpen(false);
+  // };
+
+
+
   const handleAssign = () => {
-    const metafieldData = selectedMetafields[activeTabIndex].map((id) => {
-      // Find the definition corresponding to the selected metafield ID
-      const definition = metafieldDefinitions.find((def) => def.id === id);
-      return {
-        id, // Metafield ID
-        namespace: definition?.namespace || "", // Namespace from the definition
-        key: definition?.key || "", // Key from the definition
-        type: {
-          valueType: definition?.type?.valueType || "", // Value type from the definition
-          name: definition?.type?.name
-        },
-      };
+    setSelectedMetafields((prev) => {
+      const updated = [...prev];
+      updated[activeTabIndex] = tempSelectedMetafields;
+      return updated;
     });
 
-
-    // Submit the selected metafields to be saved
     fetcher.submit(
       {
-        metafields: JSON.stringify(metafieldData || []),
+        metafields: JSON.stringify(tempSelectedMetafields),
         groupId: metafieldGroups[activeTabIndex].id,
       },
       { method: 'post' }
     );
 
+
     setModalOpen(false);
+    setTempSelectedMetafields([]); // Reset temporary selections
   };
+
+  console.log(setSelectedMetafields);
+
+  // const handleModalClose = () => {
+  //   setModalOpen(false);
+  // };
 
   const handleModalClose = () => {
     setModalOpen(false);
-    // Reset the temporary state for the current tab
-    setSelectedMetafields((prev) => {
-      const updated = [...prev];
-      updated[activeTabIndex] = []; // Clear selections for the current tab
-      return updated;
-    });
+    setTempSelectedMetafields([]); // Reset temporary selections
   };
+
 
 
   return (
@@ -254,17 +297,20 @@ export default function Groups() {
               {metafieldDefinitions.map((definition) => (
                 <Layout.Section key={definition.id} oneHalf>
                   <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                    {/* <Checkbox
-                      label={definition.key}
-                      checked={selectedMetafields.includes(definition.id)}
-                      onChange={() => handleCheckboxChange(definition.id)}
-                    /> */}
 
-                    <Checkbox
+                    {/* <Checkbox
                       label={definition.key}
                       checked={selectedMetafields[activeTabIndex]?.includes(definition.id)}
                       onChange={() => handleCheckboxChange(definition.id)}
+                    /> */}
+
+
+                    <Checkbox
+                      label={definition.key}
+                      checked={tempSelectedMetafields.includes(definition.id)}
+                      onChange={() => handleCheckboxChange(definition.id)}
                     />
+
 
                     <Text variant="bodySm" style={{ marginLeft: '8px' }}>{`Namespace: ${definition.namespace}`}</Text>
                     <Text variant="bodySm" style={{ marginLeft: '8px' }}>{`Type: ${definition.type}`}</Text>

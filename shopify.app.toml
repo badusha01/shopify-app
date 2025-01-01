@@ -3,7 +3,7 @@
 client_id = "1d4a6fa7d4daa3978c0c68ad752d27f4"
 name = "MB Merchandising"
 handle = "mb-merchandising-v04"
-application_url = "https://activation-wed-consists-list.trycloudflare.com"
+application_url = "https://eat-regularly-alcohol-proof.trycloudflare.com"
 embedded = true
 
 [build]
@@ -21,9 +21,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://activation-wed-consists-list.trycloudflare.com/auth/callback",
-  "https://activation-wed-consists-list.trycloudflare.com/auth/shopify/callback",
-  "https://activation-wed-consists-list.trycloudflare.com/api/auth/callback"
+  "https://eat-regularly-alcohol-proof.trycloudflare.com/auth/callback",
+  "https://eat-regularly-alcohol-proof.trycloudflare.com/auth/shopify/callback",
+  "https://eat-regularly-alcohol-proof.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

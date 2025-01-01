@@ -12,6 +12,8 @@ import {
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useEffect, useState } from "react";
+import Groups from "./app.groups";
+
 
 function fetchProducts(searchTerm = "", afterCursor = null) {
   return fetch("shopify:admin/api/graphql.json", {
@@ -266,6 +268,7 @@ export default function SelectFreeGift({ groupId }) {
   return (
     <Frame>
       <Page title="Configure Free Gifts">
+
         <TextField
           label="Search Products"
           value={searchTerm}
